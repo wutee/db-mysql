@@ -1,14 +1,5 @@
-language: php
-php:
-  - '5.5'
-  - '5.6'
 service:
   - mysql
-install:
-  - composer install
 before_install:
   - mysql -e 'CREATE DATABASE IF NOT EXISTS 07500260_propsy;'  
   - mysql -u root --default-character-set=utf8 07500260_propsy < wutee_recs.sql
-script:
-  - vendor/bin/phpunit
- 
