@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Czas wygenerowania: 17 Paź 2018, 18:58
+-- Czas wygenerowania: 25 Paź 2018, 00:06
 -- Wersja serwera: 5.7.22-22-log
 -- Wersja PHP: 7.1.15
 
@@ -30,8 +30,12 @@ CREATE TABLE IF NOT EXISTS `deliveries` (
   `deliveryId` int(8) NOT NULL AUTO_INCREMENT,
   `userId` int(8) NOT NULL,
   `orderId` int(8) NOT NULL,
+  `deliveryManId` int(8) NOT NULL,
   PRIMARY KEY (`deliveryId`),
-  KEY `userId` (`userId`,`orderId`)
+  KEY `userId` (`userId`,`orderId`),
+  KEY `userId_2` (`userId`,`orderId`),
+  KEY `FkDelOrderId` (`orderId`),
+  KEY `FkDelDelManId` (`deliveryManId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin2 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -59,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `foodInMenus` (
   `price` float NOT NULL,
   PRIMARY KEY (`foodId`),
   KEY `menuId` (`menuId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=7 ;
 
 -- --------------------------------------------------------
 
@@ -73,7 +77,9 @@ CREATE TABLE IF NOT EXISTS `foodInOrders` (
   `foodId` int(11) NOT NULL,
   PRIMARY KEY (`foodInOrderId`),
   KEY `orderId` (`orderId`),
-  KEY `foodId` (`foodId`)
+  KEY `foodId` (`foodId`),
+  KEY `orderId_2` (`orderId`),
+  KEY `foodId_2` (`foodId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -92,7 +98,7 @@ CREATE TABLE IF NOT EXISTS `foods` (
   `isGlutenFree` tinyint(1) DEFAULT NULL,
   `photoLocation` varchar(200) COLLATE utf8_polish_ci DEFAULT NULL,
   PRIMARY KEY (`foodId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=7 ;
 
 -- --------------------------------------------------------
 
@@ -115,10 +121,10 @@ CREATE TABLE IF NOT EXISTS `ingredients` (
 --
 
 CREATE TABLE IF NOT EXISTS `ingredientsOrders` (
-  `ingredientsOrderId` int(8) NOT NULL AUTO_INCREMENT,
-  `date` date DEFAULT NULL,
+  `ingredientOrderId` int(8) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT NULL,
   `comment` varchar(400) COLLATE utf8_polish_ci DEFAULT NULL,
-  PRIMARY KEY (`ingredientsOrderId`)
+  PRIMARY KEY (`ingredientOrderId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -128,11 +134,13 @@ CREATE TABLE IF NOT EXISTS `ingredientsOrders` (
 --
 
 CREATE TABLE IF NOT EXISTS `ingredientsToOrder` (
-  `ingredientOrderId` int(8) NOT NULL AUTO_INCREMENT,
+  `ingredientsToOrderId` int(8) NOT NULL AUTO_INCREMENT,
+  `ingredientOrderId` int(8) NOT NULL,
   `ingredientId` int(8) NOT NULL,
   `quantity` int(8) NOT NULL,
-  PRIMARY KEY (`ingredientOrderId`),
-  KEY `ingredientId` (`ingredientId`)
+  PRIMARY KEY (`ingredientsToOrderId`),
+  KEY `ingredientId` (`ingredientId`),
+  KEY `FkIngToOrdIngredientOrderId` (`ingredientOrderId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -154,10 +162,12 @@ CREATE TABLE IF NOT EXISTS `languages` (
 --
 
 CREATE TABLE IF NOT EXISTS `menus` (
-  `menuId` int(8) NOT NULL AUTO_INCREMENT,
+  `menuId` int(8) NOT NULL,
+  `restaurantId` int(11) NOT NULL,
   `menuName` varchar(100) COLLATE utf8_polish_ci NOT NULL,
-  PRIMARY KEY (`menuId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=1 ;
+  PRIMARY KEY (`menuId`),
+  KEY `FkMenRestaurantId` (`restaurantId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
 
 -- --------------------------------------------------------
 
@@ -168,10 +178,10 @@ CREATE TABLE IF NOT EXISTS `menus` (
 CREATE TABLE IF NOT EXISTS `orders` (
   `orderId` int(8) NOT NULL AUTO_INCREMENT,
   `userId` int(8) NOT NULL,
-  `deliveryManId` int(8) NOT NULL,
-  `restauranId` int(8) NOT NULL,
-  `date` date NOT NULL,
-  `lastUpadtedDate` date DEFAULT NULL,
+  `deliveryManId` int(8) DEFAULT NULL,
+  `restaurantId` int(8) NOT NULL,
+  `date` datetime NOT NULL,
+  `lastUpadtedDate` datetime DEFAULT NULL,
   `status` int(8) NOT NULL,
   `price` float NOT NULL,
   `userOpinion` varchar(400) COLLATE utf8_polish_ci DEFAULT NULL,
@@ -181,8 +191,9 @@ CREATE TABLE IF NOT EXISTS `orders` (
   PRIMARY KEY (`orderId`),
   KEY `userId` (`userId`),
   KEY `deliveryManId` (`deliveryManId`),
-  KEY `restauranId` (`restauranId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=1 ;
+  KEY `restauranId` (`restaurantId`),
+  KEY `userId_2` (`userId`,`deliveryManId`,`restaurantId`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=3 ;
 
 -- --------------------------------------------------------
 
@@ -207,7 +218,8 @@ CREATE TABLE IF NOT EXISTS `payments` (
   `methodId` int(8) NOT NULL,
   `status` int(8) NOT NULL,
   PRIMARY KEY (`paymentId`),
-  KEY `methodId` (`methodId`)
+  KEY `methodId` (`methodId`),
+  KEY `methodId_2` (`methodId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -223,7 +235,7 @@ CREATE TABLE IF NOT EXISTS `restaurants` (
   `ownerId` int(8) NOT NULL,
   PRIMARY KEY (`restaurantId`),
   KEY `ownerId` (`ownerId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=5 ;
 
 -- --------------------------------------------------------
 
@@ -239,7 +251,7 @@ CREATE TABLE IF NOT EXISTS `restaurantWorkers` (
   `restaurantId` int(8) NOT NULL,
   PRIMARY KEY (`workerId`),
   KEY `restaurantId` (`restaurantId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=5 ;
 
 -- --------------------------------------------------------
 
@@ -272,17 +284,72 @@ CREATE TABLE IF NOT EXISTS `users` (
   `phone` varchar(20) COLLATE utf8_polish_ci DEFAULT NULL,
   `loyaltyPoints` int(8) NOT NULL DEFAULT '0',
   PRIMARY KEY (`userId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci AUTO_INCREMENT=3 ;
 
 --
 -- Ograniczenia dla zrzutów tabel
 --
 
 --
+-- Ograniczenia dla tabeli `deliveries`
+--
+ALTER TABLE `deliveries`
+  ADD CONSTRAINT `FkDelDelManId` FOREIGN KEY (`deliveryManId`) REFERENCES `deliveryMans` (`deliveryManId`),
+  ADD CONSTRAINT `FkDelOrderId` FOREIGN KEY (`orderId`) REFERENCES `orders` (`orderId`),
+  ADD CONSTRAINT `FkDelUserId` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`);
+
+--
+-- Ograniczenia dla tabeli `foodInMenus`
+--
+ALTER TABLE `foodInMenus`
+  ADD CONSTRAINT `FkFoIMenFoodId` FOREIGN KEY (`foodId`) REFERENCES `foods` (`foodId`),
+  ADD CONSTRAINT `FkFoIMenMenuId` FOREIGN KEY (`menuId`) REFERENCES `menus` (`menuId`);
+
+--
+-- Ograniczenia dla tabeli `foodInOrders`
+--
+ALTER TABLE `foodInOrders`
+  ADD CONSTRAINT `FkFoIOrdMenuId` FOREIGN KEY (`foodId`) REFERENCES `foods` (`foodId`),
+  ADD CONSTRAINT `FkFoIOrdOrderId` FOREIGN KEY (`orderId`) REFERENCES `orders` (`orderId`);
+
+--
+-- Ograniczenia dla tabeli `ingredientsToOrder`
+--
+ALTER TABLE `ingredientsToOrder`
+  ADD CONSTRAINT `FkIngToOrdIngredientId` FOREIGN KEY (`ingredientId`) REFERENCES `ingredients` (`ingredientId`),
+  ADD CONSTRAINT `FkIngToOrdIngredientOrderId` FOREIGN KEY (`ingredientOrderId`) REFERENCES `ingredientsOrders` (`ingredientOrderId`);
+
+--
+-- Ograniczenia dla tabeli `menus`
+--
+ALTER TABLE `menus`
+  ADD CONSTRAINT `FkMenRestaurantId` FOREIGN KEY (`restaurantId`) REFERENCES `restaurants` (`restaurantId`);
+
+--
 -- Ograniczenia dla tabeli `orders`
 --
 ALTER TABLE `orders`
-  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`);
+  ADD CONSTRAINT `FkOrdDelManId` FOREIGN KEY (`deliveryManId`) REFERENCES `deliveryMans` (`deliveryManId`),
+  ADD CONSTRAINT `FkOrdRestaurantId` FOREIGN KEY (`restaurantId`) REFERENCES `restaurants` (`restaurantId`),
+  ADD CONSTRAINT `FkOrdUserId` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`);
+
+--
+-- Ograniczenia dla tabeli `payments`
+--
+ALTER TABLE `payments`
+  ADD CONSTRAINT `FkPayMethodId` FOREIGN KEY (`methodId`) REFERENCES `paymentMethods` (`methodId`);
+
+--
+-- Ograniczenia dla tabeli `restaurantWorkers`
+--
+ALTER TABLE `restaurantWorkers`
+  ADD CONSTRAINT `FkResWorRestaurantId` FOREIGN KEY (`restaurantId`) REFERENCES `restaurants` (`restaurantId`);
+
+--
+-- Ograniczenia dla tabeli `translations`
+--
+ALTER TABLE `translations`
+  ADD CONSTRAINT `FkTraLanguageId` FOREIGN KEY (`languageId`) REFERENCES `languages` (`languageId`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
